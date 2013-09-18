@@ -4,10 +4,34 @@
     <script src="scripts/jquery.js"></script>
     <script src="scripts/atmosphere.js"></script>
     <script src="scripts/app.js"></script>
+    <style>
+        #output_console {
+            background: darkgray;
+            color: black;
+            padding: 10px;
+            border-radius: 10px;
+            height: 500px;
+            overflow-y: scroll;
+        }
+
+        #output_console p {
+            margin: 10px;
+        }
+
+        #output_console p.system {
+            color: blue;
+            font-color: 10px;
+        }
+
+        #output_console p.error {
+            color: red;
+        }
+    </style>
 </head>
 <body>
-<div id="content"></div>
-<input id="input"></div>
-<div id="status"></div>
+  <div id="output_console">
+
+  </div>
+  <button id="publish">Publish</button>
 </body>
 </html>

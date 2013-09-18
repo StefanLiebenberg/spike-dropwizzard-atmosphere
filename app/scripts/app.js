@@ -1,88 +1,60 @@
 $(function() {
   "use strict";
 
-  var content = $("#content");
-  var input = $("#input");
-  var status = $("#status");
-  var myName = false;
-  var author = null;
-  var logged = false;
-  var socket = atmosphere;
-  var request = { url: 'http://localhost:8080/spike/',
+
+  var URL = "http://localhost:8080/spike";
+
+  var out = $("#output_console");
+
+  function report(text, opt_class) {
+    out.append(
+        $("<p class='" + (opt_class || 'report' ) + "'></p>").append(text)
+    );
+  }
+
+
+  var request = {
+    url: URL,
     contentType: "application/json",
     logLevel: 'debug',
     transport: 'websocket',
     fallbackTransport: 'long-polling'
   };
 
-
   request.onOpen = function(response) {
-    content.html($('<p>',
-                   { text: 'Atmosphere connected using ' +
-                           response.transport }));
-    input.removeAttr('disabled').focus();
-    status.text('Choose name:');
+    report('Atmosphere opened using ' +
+           response.transport, "system");
   };
 
   request.onMessage = function(response) {
     var message = response.responseBody;
     try {
-      var json = JSON.parse(message);
+      report("Message received", "system");
+      report(message);
     } catch (e) {
-      console.log('This doesn\'t look like a valid JSON: ', message.data);
-      return;
-    }
-
-    input.removeAttr('disabled').focus();
-    if (!logged) {
-      logged = true;
-      status.text(myName + ': ').css('color', 'blue');
-    } else {
-      json.time = new Date();
-      var me = json.title == author;
-      var date = typeof(json.time) == 'string' ? parseInt(json.time) :
-          json.time;
-      addMessage(json.title, json.content, me ? 'blue' : 'black', new Date(date));
+      report('BAD MESSAGE: ' + message, "system error");
     }
   };
 
   request.onClose = function(response) {
-    logged = false;
-  }
-
-  request.onError = function(response) {
-    content.html($('<p>', { text: 'Sorry, but there\'s some problem with your '
-        + 'socket or the server is down' }));
+    report("Atmosphere closed..", "system");
   };
 
-  var subSocket = socket.subscribe(request);
+  request.onError = function(response) {
+    report('Sorry, but there\'s some problem with your '
+               + 'socket or the server is down', 'system error');
+  };
 
-  input.keydown(function(e) {
-    if (e.keyCode === 13) {
-      var msg = $(this).val();
+  var subSocket = atmosphere.subscribe(request);
 
-      // First message is always the author's name
-      if (author == null) {
-        author = msg;
-      }
+  var publishButton = $("button#publish");
 
-      subSocket.push(JSON.stringify({ title: author, content: msg }));
-      $(this).val('');
-
-      input.attr('disabled', 'disabled');
-      if (myName === false) {
-        myName = msg;
-      }
-    }
+  publishButton.click(function() {
+    var msg = {
+      title: 'Message Title',
+      content: new Date().toString()
+    };
+    subSocket.push(JSON.stringify(msg));
   });
 
-  function addMessage(author, message, color, datetime) {
-    content.append('<p><span style="color:' + color + '">' + author +
-                   '</span> @ ' + +(
-        datetime.getHours() < 10 ? '0' + datetime.getHours() :
-            datetime.getHours()) + ':'
-                       + (datetime.getMinutes() < 10 ?
-        '0' + datetime.getMinutes() : datetime.getMinutes())
-                       + ': ' + message + '</p>');
-  }
 });

@@ -1,7 +1,6 @@
 $(function() {
   "use strict";
 
-
   var URL = "http://localhost:8080/spike";
 
   var out = $("#output_console");
@@ -11,7 +10,6 @@ $(function() {
         $("<p class='" + (opt_class || 'report' ) + "'></p>").append(text)
     );
   }
-
 
   var request = {
     url: URL,

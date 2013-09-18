@@ -11,7 +11,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Path("/spike")
+@Path("/hello")
 @Produces(MediaType.APPLICATION_JSON)
 public class SpikeResource {
     private final String template;
